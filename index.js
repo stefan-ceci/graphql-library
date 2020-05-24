@@ -69,10 +69,16 @@ const resolvers = {
         return Book.find({ genres: { $in: [args.genre] } }).populate("author");
       }
       if (args.author && !args.genre) {
-        return Book.find({ author: args.author });
+        const author = await Author.findOne({ name: args.author });
+        console.log("author", author);
+        return Book.find({ author: author._id }).populate("author");
       }
       if (args.author && args.genre) {
-        return Book.find({ author: args.author, genre: args.genre });
+        const author = await Author.findOne({ name: args.author });
+        return Book.find({
+          author: author._id,
+          genres: { $in: [args.genre] },
+        }).populate("author");
       }
     },
     allAuthors: () => Author.find({}),
@@ -80,10 +86,10 @@ const resolvers = {
   Author: {
     bookCount: async (root) => {
       const author = await Author.findOne({ name: root.name });
-      const authorBooks = await Book.collection.countDocuments({
+      const numberOfBooks = await Book.collection.countDocuments({
         author: author._id,
       });
-      return authorBooks;
+      return numberOfBooks;
     },
   },
   Mutation: {
@@ -120,7 +126,6 @@ const resolvers = {
       try {
         await author.save();
       } catch (error) {
-        console.log("error", error.message);
         throw new UserInputError(error.message, {
           invalidArgs: args,
         });
