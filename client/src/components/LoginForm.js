@@ -2,16 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useMutation } from "@apollo/client";
 import { LOGIN } from "../queries";
 
-const LoginForm = ({ show, setError, setToken, refetchUser }) => {
+const LoginForm = ({ show, setError, setToken, setPage, fetchCurrentUser }) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const [login, { data }] = useMutation(LOGIN, {
     onError: (error) => {
+      console.error("Error", error);
       setError(error.graphQLErrors[0].message);
     },
     onCompleted: () => {
-      refetchUser();
+      setUsername("");
+      setPassword("");
+      setPage("books");
     },
   });
 
@@ -25,10 +28,7 @@ const LoginForm = ({ show, setError, setToken, refetchUser }) => {
 
   const submit = async (event) => {
     event.preventDefault();
-
     await login({ variables: { username, password } });
-    setUsername("");
-    setPassword("");
   };
 
   if (!show) {

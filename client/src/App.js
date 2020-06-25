@@ -26,16 +26,11 @@ const App = () => {
     refetch: refetchBooks,
   } = useQuery(GET_BOOKS);
 
-  const { data: user, loading: loadingUser, refetchCurrent } = useQuery(
+  const { data: user, loading: loadingUser, refetch: refetchUser } = useQuery(
     CURRENT_USER
   );
 
   const { data: genres, loading: loadingGenres } = useQuery(GET_GENRES);
-
-  const refetchUser = () => {
-    refetchCurrent();
-    setPage("books");
-  };
 
   // const { data: bookAdded } = useSubscription(BOOK_ADDED);
 
@@ -52,8 +47,9 @@ const App = () => {
     const token = localStorage.getItem("user-token");
     if (token) {
       setToken(token);
+      refetchUser();
     }
-  }, []);
+  }, [token, refetchUser]);
 
   if (loadingAuthors || loadingBooks || loadingUser || loadingGenres) {
     return <p>Loading...</p>;
@@ -102,7 +98,7 @@ const App = () => {
         refetchBooks={refetchBooks}
         initialGenres={genres.genres}
       />
-      <NewBook show={page === "add"} />
+      <NewBook show={page === "add"} setPage={setPage} />
       <Recommend
         show={page === "recommend"}
         books={books?.allBooks}
@@ -112,7 +108,7 @@ const App = () => {
         show={page === "login"}
         setToken={setToken}
         setError={notify}
-        refetchUser={refetchUser}
+        setPage={setPage}
       />
     </div>
   );

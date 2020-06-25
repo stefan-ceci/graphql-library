@@ -55,7 +55,7 @@ export const BOOKS_BY_GENRE = gql`
 `;
 
 export const CURRENT_USER = gql`
-  query {
+  {
     me {
       username
       favoriteGenre
